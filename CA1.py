@@ -31,12 +31,15 @@ def plot_points(coord, indices):
     fig = plt.figure()
     ax = fig.gca()
     ax.plot(coord[:, 0], coord[:, 1], '.')
+    for i in range(7):
+        plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
 
     a = coord[indices]
     # print(a)
 
     line_segments = LineCollection(a)
     ax.add_collection(line_segments)
+
 
     plt.show()
 
@@ -84,9 +87,10 @@ coord_list = read_coordinate_file("SampleCoordinates.txt")
 # Gives the connections (indices) and travelcost between these cities, within given radius
 connections, travel_cost = construct_graph_connections(coord_list, 0.08)
 # plot coordinates, and lines between connections
-plot_points(coord_list, connections)
+
 # Constructs csr matrix
 constructed_graph = construct_graph(connections, travel_cost, N=len(travel_cost))
 # Calculates cheapest path
 cheapest_path(constructed_graph, connections)
+plot_points(coord_list, connections)
 
