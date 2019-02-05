@@ -33,7 +33,7 @@ def plot_points(coord, indices):
     ax.plot(coord[:, 0], coord[:, 1], '.')
 
     a = coord[indices]
-    print(a)
+    # print(a)
 
     line_segments = LineCollection(a)
     ax.add_collection(line_segments)
@@ -68,18 +68,25 @@ def construct_graph(indices, costs, N):
 
     # NxN where N is the numbers of nodes
     graph = csr_matrix((data, (i, j)), shape=(N, N))
-    # print(graph)
+    print(graph)
 
     return graph
 
+
 def cheapest_path(sparse_matrix, indices):
-    dist_matrix = dijkstra(sparse_matrix, indices, directed=False)
+    dist_matrix, predecessors = dijkstra(csgraph=sparse_matrix, directed=True, indices=indices, return_predecessors=True, limit=1)
+
     print(dist_matrix)
-#    print(predecessors)
+    print(predecessors)
 
-
+# reads coordinates from file
 coord_list = read_coordinate_file("SampleCoordinates.txt")
+# Gives the connections (indices) and travelcost between these cities, within given radius
 connections, travel_cost = construct_graph_connections(coord_list, 0.08)
+# plot coordinates, and lines between connections
 plot_points(coord_list, connections)
+# Constructs csr matrix
 constructed_graph = construct_graph(connections, travel_cost, N=len(travel_cost))
+# Calculates cheapest path
 cheapest_path(constructed_graph, connections)
+
