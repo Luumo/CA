@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
 
 
@@ -65,12 +66,20 @@ def construct_graph(indices, costs, N):
     j = indices[:, 1]
     data = costs
 
-    # MxN is the shape. So if we got 5 elements in costs, we need N=5
-    matrix = csr_matrix((data, (i, j)), shape=(N, N))
-    print(matrix)
+    # NxN where N is the numbers of nodes
+    graph = csr_matrix((data, (i, j)), shape=(N, N))
+    # print(graph)
+
+    return graph
+
+def cheapest_path(sparse_matrix, indices):
+    dist_matrix = dijkstra(sparse_matrix, indices, directed=False)
+    print(dist_matrix)
+#    print(predecessors)
 
 
 coord_list = read_coordinate_file("SampleCoordinates.txt")
 connections, travel_cost = construct_graph_connections(coord_list, 0.08)
 plot_points(coord_list, connections)
-construct_graph(connections, travel_cost, N=len(travel_cost))
+constructed_graph = construct_graph(connections, travel_cost, N=len(travel_cost))
+cheapest_path(constructed_graph, connections)
