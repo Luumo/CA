@@ -77,7 +77,7 @@ def construct_graph(indices, costs, N):
 
 
 def cheapest_path(sparse_matrix, indices):
-    dist_matrix, predecessors = dijkstra(csgraph=sparse_matrix, directed=True, indices=indices, return_predecessors=True, limit=1)
+    dist_matrix, predecessors = dijkstra(csgraph=sparse_matrix, directed=True, indices=0, return_predecessors=True, limit=1)
 
     print(dist_matrix)
     print(predecessors)
