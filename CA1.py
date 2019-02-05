@@ -1,4 +1,5 @@
 # Reads a coordinate file and parses the results into an array of coordinates.
+# changes right here
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
