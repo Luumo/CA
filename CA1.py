@@ -77,20 +77,20 @@ def construct_graph(indices, costs, N):
 
 
 def cheapest_path(sparse_matrix, indices):
-    dist_matrix, predecessors = dijkstra(csgraph=sparse_matrix, directed=True, indices=0, return_predecessors=True, limit=1)
-
+    dist_matrix, predecessors = dijkstra(csgraph=sparse_matrix, directed=True, indices=indices, return_predecessors=True, limit=1)
     print(dist_matrix)
-    print(predecessors)
+    return predecessors
 
-# reads coordinates from file
+
+def compute_path(predecessor_matrix, start_node, end_node):
+
+    print(predecessor_matrix)
+
+
 coord_list = read_coordinate_file("SampleCoordinates.txt")
-# Gives the connections (indices) and travelcost between these cities, within given radius
 connections, travel_cost = construct_graph_connections(coord_list, 0.08)
-# plot coordinates, and lines between connections
-
-# Constructs csr matrix
 constructed_graph = construct_graph(connections, travel_cost, N=len(travel_cost))
-# Calculates cheapest path
-cheapest_path(constructed_graph, connections)
+predecessor_matrix = cheapest_path(constructed_graph, connections)
+compute_path(predecessor_matrix, 0, 5)
 plot_points(coord_list, connections)
 
