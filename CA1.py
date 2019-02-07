@@ -5,8 +5,13 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
 
+START_NODE = 0
+END_NODE = 5
+RADIUS = 0.08
+
 
 def mercator_projection(a, b):
+
     r = 1
     x = r * np.pi * b / 180
     y = r * np.log(np.tan(np.pi / 4 + np.pi * a / 360))
@@ -27,19 +32,19 @@ def read_coordinate_file(filename):
     return np.array(coords)
 
 
-def plot_points(coord, indices):
+def plot_points(coord, indices, path):
     fig = plt.figure()
     ax = fig.gca()
+    #
     ax.plot(coord[:, 0], coord[:, 1], '.')
     for i in range(7):
         plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
 
     a = coord[indices]
-    # print(a)
+    print(a)
 
     line_segments = LineCollection(a)
     ax.add_collection(line_segments)
-
 
     plt.show()
 
@@ -69,28 +74,36 @@ def construct_graph(indices, costs, N):
     j = indices[:, 1]
     data = costs
 
-    # NxN where N is the numbers of nodes
     graph = csr_matrix((data, (i, j)), shape=(N, N))
     print(graph)
 
     return graph
 
 
-def cheapest_path(sparse_matrix, indices):
-    dist_matrix, predecessors = dijkstra(csgraph=sparse_matrix, directed=True, indices=indices, return_predecessors=True, limit=1)
-    print(dist_matrix)
-    return predecessors
+def cheapest_path(sparse_matrix, start):
+
+    distance, predecessor = dijkstra(csgraph=sparse_matrix, directed=False, indices=start, return_predecessors=True)
+    return distance, predecessor
 
 
-def compute_path(predecessor_matrix, start_node, end_node):
+def compute_path(predecessor, start_node, end_node):
 
-    print(predecessor_matrix)
+    current_pos = end_node
+    path = [end_node]
+
+    while current_pos != start_node:
+        current_pos = predecessor[current_pos]
+        path.append(current_pos)
+
+    return path[::-1]
 
 
 coord_list = read_coordinate_file("SampleCoordinates.txt")
-connections, travel_cost = construct_graph_connections(coord_list, 0.08)
-constructed_graph = construct_graph(connections, travel_cost, N=len(travel_cost))
-predecessor_matrix = cheapest_path(constructed_graph, connections)
-compute_path(predecessor_matrix, 0, 5)
-plot_points(coord_list, connections)
+connections, travel_cost = construct_graph_connections(coord_list, RADIUS)
+# N = numbers of cities
+constructed_graph = construct_graph(connections, travel_cost, N=len(coord_list))
+
+dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
+calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
+plot_points(coord_list, connections, calculated_path)
 
