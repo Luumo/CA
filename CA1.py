@@ -33,24 +33,29 @@ def read_coordinate_file(filename):
 
 
 def plot_points(coord, indices, path):
+    # print(coord, '\n', path, '\n', indices)
     fig = plt.figure()
     ax = fig.gca()
-    bx = fig.gca()
     # dots
-    ax.plot(coord[:, 0], coord[:, 1], '.')
+    ax.plot(coord[:, 0], coord[:, 1], '.', 'r')
     # lines
     a = coord[indices]
-    b = []
-    for city in path:
-        b.append(coord[city])
-    print(b)
+    # print(a)
 
-    line_segments = LineCollection(a)
+    b = [coord[i] for i in path]
+    print(b)
+    c = np.array(b)
+    ax.plot(c[:, 0], c[:, 1], 'b')
+    print(c)
+
+
+    line_segments = LineCollection(a, colors='grey')
     ax.add_collection(line_segments)
 
     # numbered dots
     for i in range(7):
         plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
+
 
     plt.show()
 
@@ -81,7 +86,7 @@ def construct_graph(indices, costs, N):
     data = costs
 
     graph = csr_matrix((data, (i, j)), shape=(N, N))
-    print(graph)
+    # print(graph)
 
     return graph
 
