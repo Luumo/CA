@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
+import time
 
+FILENAME = "SampleCoordinates.txt"
 START_NODE = 0
 END_NODE = 5
 RADIUS = 0.08
@@ -33,35 +35,24 @@ def read_coordinate_file(filename):
 
 
 def plot_points(coord, indices, path):
-    # print(coord, '\n', path, '\n', indices)
+
     fig = plt.figure()
     ax = fig.gca()
-    # dots
-    ax.plot(coord[:, 0], coord[:, 1], '.', 'r')
-    # lines
-    a = coord[indices]
-    # print(a)
 
-    b = [coord[i] for i in path]
-    print(b)
-    c = np.array(b)
-    ax.plot(c[:, 0], c[:, 1], 'b')
-    print(c)
+    city_connections = coord[indices]
+    cheapest_route = np.array([coord[i] for i in path])
 
+    line_segments = LineCollection(city_connections, colors='grey', linewidths=0.5)
 
-    line_segments = LineCollection(a, colors='grey')
+    ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)
+    ax.plot(coord[:, 0], coord[:, 1], 'r.', markersize=3)
     ax.add_collection(line_segments)
-
-    # numbered dots
-    for i in range(7):
-        plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
-
+    ax.autoscale(enable=True)
 
     plt.show()
 
 
 def construct_graph_connections(coord, radius):
-
     cost = []
     city_connections = []
 
@@ -75,7 +66,6 @@ def construct_graph_connections(coord, radius):
     np_connections = np.array(city_connections)
     # print(np_connections)
     # print(cost)
-
     return np_connections, np_cost
 
 
@@ -109,7 +99,8 @@ def compute_path(predecessor, start_node, end_node):
     return path[::-1]
 
 
-coord_list = read_coordinate_file("SampleCoordinates.txt")
+
+coord_list = read_coordinate_file(FILENAME)
 connections, travel_cost = construct_graph_connections(coord_list, RADIUS)
 # N = numbers of cities
 constructed_graph = construct_graph(connections, travel_cost, N=len(coord_list))
