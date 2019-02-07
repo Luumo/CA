@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
+from scipy import spatial
 import time
 
 FILENAME = "SampleCoordinates.txt"
@@ -95,17 +96,14 @@ def compute_path(predecessor, start_node, end_node):
     while current_pos != start_node:
         current_pos = predecessor[current_pos]
         path.append(current_pos)
-
+    print("The cheapest path: ", path[::-1])
     return path[::-1]
-
 
 
 coord_list = read_coordinate_file(FILENAME)
 connections, travel_cost = construct_graph_connections(coord_list, RADIUS)
 # N = numbers of cities
 constructed_graph = construct_graph(connections, travel_cost, N=len(coord_list))
-
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
 plot_points(coord_list, connections, calculated_path)
-
