@@ -35,16 +35,24 @@ def read_coordinate_file(filename):
 def plot_points(coord, indices, path):
     fig = plt.figure()
     ax = fig.gca()
-    #
+    # dots
     ax.plot(coord[:, 0], coord[:, 1], '.')
+    # lines
+    a = coord[indices]
+
+    b = []
+    for index in path:
+        b.append([index, index + 1])
+
+    np_b = np.array(b)
+    print(b)
+
+    line_segments2 = LineCollection(b)
+    line_segments = LineCollection(a)
+    ax.add_collection(line_segments, line_segments2)
+    # numbered dots
     for i in range(7):
         plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
-
-    a = coord[indices]
-    print(a)
-
-    line_segments = LineCollection(a)
-    ax.add_collection(line_segments)
 
     plt.show()
 
