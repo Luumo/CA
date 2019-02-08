@@ -40,6 +40,7 @@ def plot_points(coord, indices, path):
     fig = plt.figure()
     ax = fig.gca()
 
+
     city_connections = coord[indices]
     cheapest_route = coord[path]
 
