@@ -65,8 +65,7 @@ def construct_graph_connections(coords, radius):
                 city_connections.append([start, start_2])
     np_cost = np.array(cost)
     np_connections = np.array(city_connections)
-    print(np_connections)
-    # print(cost)
+
     return np_connections, np_cost
 
 
@@ -84,7 +83,7 @@ def construct_fast_graph_connections(coords, radius):
                 cost.append(np.power(distance, 9/10))
     np_connections = np.array(city_connections)
     np_cost = np.array(cost)
-    print(np_connections)
+
     return np_connections, np_cost
 
 
@@ -94,7 +93,6 @@ def construct_graph(indices, costs, N):
     data = costs
 
     graph = csr_matrix((data, (i, j)), shape=(N, N))
-    # print(graph)
 
     return graph
 
@@ -102,8 +100,6 @@ def construct_graph(indices, costs, N):
 def cheapest_path(sparse_matrix, start):
 
     distance, predecessor = dijkstra(csgraph=sparse_matrix, directed=False, indices=start, return_predecessors=True)
-    # print(distance)
-    # print(predecessor)
     return distance, predecessor
 
 
@@ -115,14 +111,17 @@ def compute_path(predecessor, start_node, end_node):
     while current_pos != start_node:
         current_pos = predecessor[current_pos]
         path.append(current_pos)
-    # print("The cheapest path: ", path[::-1])
+    print("The cheapest path: ", path[::-1])
     return path[::-1]
 
+def print_cost_cheapest_path(dist, END_NODE):
+    print(dist[END_NODE])
 
 coord_list = read_coordinate_file(FILENAME)
 connections, travel_cost = construct_graph_connections(coord_list, RADIUS)
 # connections, travel_cost = construct_fast_graph_connections(coord_list, RADIUS)
 constructed_graph = construct_graph(connections, travel_cost, N=len(coord_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
+print_cost_cheapest_path(dist_matrix, END_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
 plot_points(coord_list, connections, calculated_path)
