@@ -7,10 +7,10 @@ from matplotlib.collections import LineCollection
 from scipy import spatial
 import time
 
-FILENAME = "SampleCoordinates.txt"
-START_NODE = 0
-END_NODE = 5
-RADIUS = 0.08
+FILENAME = "Hungary.txt"
+START_NODE = 311
+END_NODE = 702
+RADIUS = 0.005
 
 
 def mercator_projection(a, b):
@@ -40,28 +40,25 @@ def plot_points(coord, indices, path):
     fig = plt.figure()
     ax = fig.gca()
 
-    for i in range(7):
-        plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
-
     city_connections = coord[indices]
-    cheapest_route = np.array([coord[i] for i in path])
+    cheapest_route = coord[path]
 
     line_segments = LineCollection(city_connections, colors='grey', linewidths=0.5)
 
     ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)
     ax.plot(coord[:, 0], coord[:, 1], 'r.', markersize=3)
     ax.add_collection(line_segments)
-    ax.autoscale(enable=True)
 
     plt.show()
 
 
-def construct_graph_connections(coord, radius):
+def construct_graph_connections(coords, radius):
     cost = []
     city_connections = []
 
-    for start, start_coord in enumerate(coord):
-        for start_2, next_coord in enumerate(coord[start + 1:], start + 1):
+    for start, start_coord in enumerate(coords):
+        for start_2 in range(start + 1, len(coords)):
+            next_coord = coords[start_2]
             distance = np.linalg.norm(start_coord - next_coord)
             if distance <= radius:
                 cost.append(np.power(distance, 9/10))
@@ -69,20 +66,29 @@ def construct_graph_connections(coord, radius):
     np_cost = np.array(cost)
     np_connections = np.array(city_connections)
     print(np_connections)
-    print(cost)
+    # print(cost)
     return np_connections, np_cost
 
 
-def construct_fast_graph_connections(coord, radius):
-    tree = spatial.cKDTree(coord)
-    # Finds all neighbors within radius for
-    b = tree.query(coord, radius)
-    a = tree.query_ball_point(coord, radius)
-    print(a)
+def construct_fast_graph_connections(coords, radius):
+    tree = spatial.cKDTree(coords)
+
+    start_ends = tree.query_ball_point(coords, radius)
+    city_connections = []
+    cost = []
+    for start, ends in enumerate(start_ends):
+        for end in ends:
+            if start < end:
+                distance = np.linalg.norm(coords[start] - coords[end])
+                city_connections.append([start, end])
+                cost.append(np.power(distance, 9/10))
+    np_connections = np.array(city_connections)
+    np_cost = np.array(cost)
+    print(np_connections)
+    return np_connections, np_cost
 
 
 def construct_graph(indices, costs, N):
-
     i = indices[:, 0]
     j = indices[:, 1]
     data = costs
@@ -113,12 +119,9 @@ def compute_path(predecessor, start_node, end_node):
     return path[::-1]
 
 
-
-
 coord_list = read_coordinate_file(FILENAME)
 connections, travel_cost = construct_graph_connections(coord_list, RADIUS)
-construct_fast_graph_connections(coord_list, RADIUS)
-# N = numbers of cities
+# connections, travel_cost = construct_fast_graph_connections(coord_list, RADIUS)
 constructed_graph = construct_graph(connections, travel_cost, N=len(coord_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
