@@ -40,6 +40,9 @@ def plot_points(coord, indices, path):
     fig = plt.figure()
     ax = fig.gca()
 
+    for i in range(7):
+        plt.text(coord[i, 0] + .005, coord[i, 1], str(i))
+
     city_connections = coord[indices]
     cheapest_route = np.array([coord[i] for i in path])
 
@@ -65,9 +68,17 @@ def construct_graph_connections(coord, radius):
                 city_connections.append([start, start_2])
     np_cost = np.array(cost)
     np_connections = np.array(city_connections)
-    # print(np_connections)
-    # print(cost)
+    print(np_connections)
+    print(cost)
     return np_connections, np_cost
+
+
+def construct_fast_graph_connections(coord, radius):
+    tree = spatial.cKDTree(coord)
+    # Finds all neighbors within radius for
+    b = tree.query(coord, radius)
+    a = tree.query_ball_point(coord, radius)
+    print(a)
 
 
 def construct_graph(indices, costs, N):
@@ -85,6 +96,8 @@ def construct_graph(indices, costs, N):
 def cheapest_path(sparse_matrix, start):
 
     distance, predecessor = dijkstra(csgraph=sparse_matrix, directed=False, indices=start, return_predecessors=True)
+    # print(distance)
+    # print(predecessor)
     return distance, predecessor
 
 
@@ -96,12 +109,15 @@ def compute_path(predecessor, start_node, end_node):
     while current_pos != start_node:
         current_pos = predecessor[current_pos]
         path.append(current_pos)
-    print("The cheapest path: ", path[::-1])
+    # print("The cheapest path: ", path[::-1])
     return path[::-1]
+
+
 
 
 coord_list = read_coordinate_file(FILENAME)
 connections, travel_cost = construct_graph_connections(coord_list, RADIUS)
+construct_fast_graph_connections(coord_list, RADIUS)
 # N = numbers of cities
 constructed_graph = construct_graph(connections, travel_cost, N=len(coord_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
