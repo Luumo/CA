@@ -94,14 +94,13 @@ def construct_fast_graph_connections(coord_list, radius):
 
 def construct_graph(indices, costs, N):
 
-    t = time.time()
     i = indices[:, 0]
     j = indices[:, 1]
     data = costs
 
     # At [i,j] in the sparse matrix, the cost of this route between i and j can be found.
     graph = csr_matrix((data, (i, j)), shape=(N, N))    # N is equal to amount of cities in coord_list
-    print('construct_graph: {:4.10f}s'.format(time.time() - t))
+
     return graph
 
 
