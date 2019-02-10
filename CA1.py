@@ -85,7 +85,6 @@ def construct_fast_graph_connections(coord_list, radius):
     city_connections, cost = [], []
     # removing city connection doublets
     for start, ends in enumerate(start_ends):
-        print(start, ends)
         for end in ends:
             if start < end:
                 distance = np.linalg.norm(coord_list[start] - coord_list[end])
