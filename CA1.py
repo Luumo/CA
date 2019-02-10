@@ -23,7 +23,7 @@ def mercator_projection(latitude, longitude):
 
 
 def read_coordinate_file(filename):
-
+    t = time.time()
     coordinates = []
     with open(filename, "r") as file:
         for line in file:
@@ -32,12 +32,12 @@ def read_coordinate_file(filename):
             longitude = float(line[-1])
             coord = mercator_projection(latitude, longitude)
             coordinates.append(coord)
-
+    print('Read_coordinate_file: {:4.3f}s'.format(time.time() - t))
     return np.array(coordinates)
 
 
 def plot_points(coord_list, indices, path):
-
+    t = time.time()
     fig = plt.figure()
     ax = fig.gca()
 
@@ -49,16 +49,14 @@ def plot_points(coord_list, indices, path):
     ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)
     ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=3)  # dotted cities
     ax.add_collection(line_segments)
-
-
-
+    print('Plot_points excluding plt.show {:4.3f}s'.format(time.time() - t))
     plt.show()
 
 
 def construct_graph_connections(coord_list, radius):
     # Computes all connections between all points in coord_list within radius
     # Returns: Connections between all neighbouring cities and the cost of traveling between these cities
-
+    t = time.time()
     cost = []
     city_connections = []
 
@@ -71,7 +69,7 @@ def construct_graph_connections(coord_list, radius):
                 city_connections.append([start, end])
     np_cost = np.array(cost)
     np_connections = np.array(city_connections)
-
+    print('construct_graph_connections: {:4.3f}s'.format(time.time() - t))
     return np_connections, np_cost
 
 
@@ -97,13 +95,14 @@ def construct_fast_graph_connections(coord_list, radius):
 
 
 def construct_graph(indices, costs, N):
-
+    t = time.time()
     i = indices[:, 0]
     j = indices[:, 1]
     data = costs
 
     # At [i,j] in the sparse matrix, the cost of this route between i and j can be found.
     graph = csr_matrix((data, (i, j)), shape=(N, N))    # N is equal to amount of cities in coord_list
+    print('construct_graph: {:4.3f}s'.format(time.time() - t))
     return graph
 
 
@@ -134,14 +133,17 @@ def print_cost_cheapest_path(dist, end_node):
     total_cost = dist[end_node]
     print("Total Cost: {}".format(total_cost))
 
-
+t1 = time.time()
 coordinate_list = read_coordinate_file(FILENAME)
 
-# connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
-connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
+connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
+# connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
 
 constructed_graph = construct_graph(connections, travel_cost, N=len(coordinate_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
+t2 = time.time()
 print_cost_cheapest_path(dist_matrix, END_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
+print('Task 6+7: {:4.3f}s'.format(time.time() - t2))
+print('whole program: {:4.3f}s'.format(time.time() - t1))
 plot_points(coordinate_list, connections, calculated_path)
