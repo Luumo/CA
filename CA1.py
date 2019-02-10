@@ -47,7 +47,7 @@ def plot_points(coord_list, indices, path):
     line_segments = LineCollection(city_connections, colors='grey', linewidths=0.2)
     # Size for marker:
     # Sample City: 4, Hungary: 1, Germany: 0.6
-    ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=0.3)
+    ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=0.5)
     ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)
     ax.add_collection(line_segments)
     plt.title("Optimal Path")
@@ -88,7 +88,6 @@ def construct_fast_graph_connections(coord_list, radius):
 
     np_connections = np.array(city_connections)
     np_cost = np.array(cost)
-
 
     return np_connections, np_cost
 
