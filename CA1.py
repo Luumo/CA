@@ -44,11 +44,11 @@ def plot_points(coord_list, indices, path):
     city_connections = coord_list[indices]
     cheapest_route = coord_list[path]
 
-    line_segments = LineCollection(city_connections, colors='grey', linewidths=0.2)
     # Size for marker:
-    # Sample City: 4, Hungary: 1, Germany: 0.6
-    ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=0.5)
-    ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)
+    # Sample City: 4, Hungary: 1, Germany: 0.1
+    ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=0.1)                   # dotted cities
+    ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)               # cheapest path route
+    line_segments = LineCollection(city_connections, colors='grey', linewidths=0.2)     # city connections
     ax.add_collection(line_segments)
     plt.title("Optimal Path")
     plt.show()
