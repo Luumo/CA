@@ -47,11 +47,10 @@ def plot_points(coord_list, indices, path):
     line_segments = LineCollection(city_connections, colors='grey', linewidths=0.5)
 
     ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)
-    ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=3)                 # Cities dotted
+    ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=3)  # dotted cities
     ax.add_collection(line_segments)
 
-    for i in range(7):
-        plt.text(coord_list[i, 0] + .005, coord_list[i, 1], str(i))
+
 
     plt.show()
 
@@ -98,12 +97,12 @@ def construct_fast_graph_connections(coord_list, radius):
 
 
 def construct_graph(indices, costs, N):
-    # At [i,j] in the sparse matrix, the cost of this route between i and j can be found.
 
     i = indices[:, 0]
     j = indices[:, 1]
     data = costs
 
+    # At [i,j] in the sparse matrix, the cost of this route between i and j can be found.
     graph = csr_matrix((data, (i, j)), shape=(N, N))    # N is equal to amount of cities in coord_list
     return graph
 
@@ -140,8 +139,8 @@ coordinate_list = read_coordinate_file(FILENAME)
 
 # connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
 connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
-constructed_graph = construct_graph(connections, travel_cost, N=len(coordinate_list))
 
+constructed_graph = construct_graph(connections, travel_cost, N=len(coordinate_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
 print_cost_cheapest_path(dist_matrix, END_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
