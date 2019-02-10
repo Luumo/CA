@@ -13,11 +13,11 @@ END_NODE = 702
 RADIUS = 0.005
 
 
-def mercator_projection(a, b):
+def mercator_projection(latitude, longitude):
 
     r = 1
-    x = r * np.pi * b / 180
-    y = r * np.log(np.tan(np.pi / 4 + np.pi * a / 360))
+    x = r * np.pi * longitude / 180
+    y = r * np.log(np.tan(np.pi / 4 + np.pi * latitude / 360))
     return x, y
 
 
@@ -27,9 +27,9 @@ def read_coordinate_file(filename):
     with open(filename, "r") as file:
         for line in file:
             line = line.strip('{}\n').split(sep=',')
-            a = float(line[0])
-            b = float(line[-1])
-            coord = mercator_projection(a, b)
+            latitude = float(line[0])
+            longitude = float(line[-1])
+            coord = mercator_projection(latitude, longitude)
             coords.append(coord)
 
     return np.array(coords)
