@@ -50,6 +50,9 @@ def plot_points(coord_list, indices, path):
     ax.plot(coord_list[:, 0], coord_list[:, 1], 'r.', markersize=3)                 # Cities dotted
     ax.add_collection(line_segments)
 
+    for i in range(7):
+        plt.text(coord_list[i, 0] + .005, coord_list[i, 1], str(i))
+
     plt.show()
 
 
@@ -74,17 +77,21 @@ def construct_graph_connections(coord_list, radius):
 
 
 def construct_fast_graph_connections(coord_list, radius):
-    tree = spatial.cKDTree(coord_list)
 
+    tree = spatial.cKDTree(coord_list)
+    # returns a list of neighbors within the given radius of each node.
     start_ends = tree.query_ball_point(coord_list, radius)
-    city_connections = []
-    cost = []
+
+    city_connections, cost = [], []
+    # removing city connection doublets
     for start, ends in enumerate(start_ends):
+        print(start, ends)
         for end in ends:
             if start < end:
                 distance = np.linalg.norm(coord_list[start] - coord_list[end])
                 city_connections.append([start, end])
                 cost.append(np.power(distance, 9/10))
+
     np_connections = np.array(city_connections)
     np_cost = np.array(cost)
 
@@ -92,7 +99,6 @@ def construct_fast_graph_connections(coord_list, radius):
 
 
 def construct_graph(indices, costs, N):
-    # constructs a sparse graph, where row i represents start city, j represents end city
     # At [i,j] in the sparse matrix, the cost of this route between i and j can be found.
 
     i = indices[:, 0]
@@ -100,13 +106,15 @@ def construct_graph(indices, costs, N):
     data = costs
 
     graph = csr_matrix((data, (i, j)), shape=(N, N))    # N is equal to amount of cities in coord_list
-    print(graph)
     return graph
 
 
-def cheapest_path(sparse_matrix, start):
+def cheapest_path(sparse_graph, start_node):
+    # Returns a matrix with cheapest distance from node i, to node j through the graph.
+    # Predecessor returns a list of the shortest paths from point i. Each following index consists previous node
+    # which was passed when traveling from the start node i to node j through the graph.
 
-    distance, predecessor = dijkstra(csgraph=sparse_matrix, directed=False, indices=start, return_predecessors=True)
+    distance, predecessor = dijkstra(csgraph=sparse_graph, directed=False, indices=start_node, return_predecessors=True)
     return distance, predecessor
 
 
@@ -115,21 +123,26 @@ def compute_path(predecessor, start_node, end_node):
     current_pos = end_node
     path = [end_node]
 
+    # computes path by going through predecessor list from end node until start_node has been found
     while current_pos != start_node:
         current_pos = predecessor[current_pos]
         path.append(current_pos)
-    print("The cheapest path: ", path[::-1])
+    print("The cheapest path from {} to {}: {}".format(start_node, end_node, path[::-1]))
+
     return path[::-1]
 
 
 def print_cost_cheapest_path(dist, end_node):
-    print(dist[end_node])
+    total_cost = dist[end_node]
+    print("Total Cost: {}".format(total_cost))
 
 
 coordinate_list = read_coordinate_file(FILENAME)
-connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
-# connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
+
+# connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
+connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
 constructed_graph = construct_graph(connections, travel_cost, N=len(coordinate_list))
+
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
 print_cost_cheapest_path(dist_matrix, END_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
