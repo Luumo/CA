@@ -7,19 +7,19 @@ from matplotlib.collections import LineCollection
 from scipy import spatial
 import time
 import math
-
+"""
 # initial values
-FILENAME = "Hungary.txt"
-START_NODE = 311
-END_NODE = 702
-RADIUS = 0.005
+FILENAME = "SampleCoordinates.txt"
+START_NODE = 0
+END_NODE = 5
+RADIUS = 0.08
 
 """
+#Germany
 FILENAME = "GermanyCities.txt"
 START_NODE = 1573
 END_NODE = 10584
 RADIUS = 0.0025
-"""
 
 
 def mercator_projection(latitude, longitude):
@@ -58,7 +58,7 @@ def plot_points(coord_list, indices, path):
     ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)               # cheapest path route
     line_segments = LineCollection(city_connections, colors='grey', linewidths=0.2)     # city connections
     ax.add_collection(line_segments)
-    # ax.autoscale(enable=True)
+    ax.axis('equal')
     plt.title("Optimal Path")
     plt.show()
 
@@ -82,7 +82,6 @@ def construct_graph_connections(coord_list, radius):
     city_connections = []
 
     for start, start_coord in enumerate(coord_list):
-        # for end, next_coord in enumerate(coord_list[start + 1:], start + 1):
         for end in range(start + 1, len(coord_list)):
             next_coord = coord_list[end]
             distance = euclidean_norm(start_coord, next_coord)
@@ -174,9 +173,9 @@ def print_cost_cheapest_path(dist, end_node):
 
 coordinate_list = read_coordinate_file(FILENAME)
 # Slow version
-# connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
+connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
 # Fast version
-connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
+# connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
 
 constructed_graph = construct_graph(connections, travel_cost, N=len(coordinate_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
