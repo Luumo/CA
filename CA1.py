@@ -8,7 +8,6 @@ from scipy import spatial
 import time
 import math
 
-
 # initial values
 FILENAME = "GermanyCities.txt"
 START_NODE = 1573
