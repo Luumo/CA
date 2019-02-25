@@ -14,10 +14,12 @@ START_NODE = 311
 END_NODE = 702
 RADIUS = 0.005
 
+"""
 FILENAME = "GermanyCities.txt"
 START_NODE = 1573
 END_NODE = 10584
 RADIUS = 0.0025
+"""
 
 
 def mercator_projection(latitude, longitude):
