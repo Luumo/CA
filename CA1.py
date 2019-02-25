@@ -6,6 +6,8 @@ from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
 from scipy import spatial
 import time
+import math
+
 
 # initial values
 FILENAME = "GermanyCities.txt"
@@ -17,8 +19,8 @@ RADIUS = 0.0025
 def mercator_projection(latitude, longitude):
 
     r = 1
-    x = r * np.pi * longitude / 180
-    y = r * np.log(np.tan(np.pi / 4 + np.pi * latitude / 360))
+    x = r * math.pi * longitude / 180
+    y = r * math.log(math.tan(np.pi / 4 + math.pi * latitude / 360))
     return x, y
 
 
@@ -63,7 +65,7 @@ def construct_graph_connections(coord_list, radius):
     for start, start_coord in enumerate(coord_list):
         for end in range(start + 1, len(coord_list)):
             next_coord = coord_list[end]
-            distance = np.linalg.norm(start_coord - next_coord)
+            distance = math.hypot(start_coord, next_coord)
             if distance <= radius:
                 cost.append(np.power(distance, 9/10))
                 city_connections.append([start, end])
