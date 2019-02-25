@@ -9,6 +9,11 @@ import time
 import math
 
 # initial values
+FILENAME = "Hungary.txt"
+START_NODE = 311
+END_NODE = 702
+RADIUS = 0.005
+
 FILENAME = "GermanyCities.txt"
 START_NODE = 1573
 END_NODE = 10584
@@ -51,8 +56,21 @@ def plot_points(coord_list, indices, path):
     ax.plot(cheapest_route[:, 0], cheapest_route[:, 1], 'b', linewidth=1)               # cheapest path route
     line_segments = LineCollection(city_connections, colors='grey', linewidths=0.2)     # city connections
     ax.add_collection(line_segments)
+    # ax.autoscale(enable=True)
     plt.title("Optimal Path")
     plt.show()
+
+
+def euclidean_norm(p1, p2):
+    # calculates distance betweeen point p1 and p2 with Euclidean norm
+    """
+    calculates distance betweeen point p1 and p2 with Euclidean norm
+
+    :param p1: [x,y] coordinate
+    :param p2: [x,y] coordinate
+    :return: distance
+    """
+    return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
 
 
 def construct_graph_connections(coord_list, radius):
@@ -62,11 +80,12 @@ def construct_graph_connections(coord_list, radius):
     city_connections = []
 
     for start, start_coord in enumerate(coord_list):
+        # for end, next_coord in enumerate(coord_list[start + 1:], start + 1):
         for end in range(start + 1, len(coord_list)):
             next_coord = coord_list[end]
-            distance = math.hypot(start_coord, next_coord)
+            distance = euclidean_norm(start_coord, next_coord)
             if distance <= radius:
-                cost.append(np.power(distance, 9/10))
+                cost.append(math.pow(distance, 9/10))
                 city_connections.append([start, end])
     np_cost = np.array(cost)
     np_connections = np.array(city_connections)
@@ -74,7 +93,6 @@ def construct_graph_connections(coord_list, radius):
 
 
 def construct_fast_graph_connections(coord_list, radius):
-
     tree = spatial.cKDTree(coord_list)
     # returns a list of neighbors within the given radius of each node.
     start_ends = tree.query_ball_point(coord_list, radius)
@@ -83,9 +101,9 @@ def construct_fast_graph_connections(coord_list, radius):
     for start, ends in enumerate(start_ends):
         for end in ends:
             if start < end:
-                distance = np.linalg.norm(coord_list[start] - coord_list[end])
+                distance = euclidean_norm(coord_list[start], coord_list[end])
                 city_connections.append([start, end])
-                cost.append(np.power(distance, 9/10))
+                cost.append(math.pow(distance, 9/10))
 
     np_connections = np.array(city_connections)
     np_cost = np.array(cost)
@@ -106,25 +124,44 @@ def construct_graph(indices, costs, N):
 
 
 def cheapest_path(sparse_graph, start_node):
-    # Returns a matrix with cheapest distance from node i, to node j through the graph.
-    # Predecessor returns a list of the shortest paths from point i. Each following index consists previous node
-    # which was passed when traveling from the start node i to node j through the graph.
+    """
+    creates cheapest path represented by a distance matrix with cost of travel between nodes,
+    and predecessor with cheapest path.
 
+    :param sparse_graph: sparse matrix [i, j], representing cost of route between i and j
+    :param start_node: starting node, which the path should be computed for
+    :return: distance as a  matrix with cheapest distance from node i, to node j through the graph,
+            predecessor as a list of the shortest paths from point i. Each index  in predecessor[i,j] consists previous
+             node which was passed when traveling from the start node i to node j through the graph.
+    """
+
+    # directed=false, since the shortest path can be found from node i -> j, and j -> i.
     distance, predecessor = dijkstra(csgraph=sparse_graph, directed=False, indices=start_node, return_predecessors=True)
     return distance, predecessor
 
 
 def compute_path(predecessor, start_node, end_node):
+    """
+    computes path by going through predecessor list, FROM end node until start_node is found.
 
+    :param predecessor: predecessor matrix [i,j] which is used to reconstruct the cheapest path from i to j
+    :param start_node: starting node
+    :param end_node: end node
+    :return: cheapest path, FROM start node, TO end node
+    """
+    # start computation from end node
     current_pos = end_node
+    # add first node (end node) to path, since this is the "start" of the computation
     path = [end_node]
 
-    # computes path by going through predecessor list from end node until start_node has been found
+    # loops throuh predecessor list as long as predecessor[current_pos] != starting node
     while current_pos != start_node:
+        # predecessor[current_pos] represents the cheapest path to current_pos
         current_pos = predecessor[current_pos]
+        # adds the current position to path
         path.append(current_pos)
     print("The cheapest path from {} to {}: {}".format(start_node, end_node, path[::-1]))
-
+    # path is reversed, since the computation goes from end node -> start node,
     return path[::-1]
 
 
