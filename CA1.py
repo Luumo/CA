@@ -7,7 +7,7 @@ from matplotlib.collections import LineCollection
 from scipy import spatial
 import time
 import math
-"""
+
 # initial values
 FILENAME = "SampleCoordinates.txt"
 START_NODE = 0
@@ -20,6 +20,7 @@ FILENAME = "GermanyCities.txt"
 START_NODE = 1573
 END_NODE = 10584
 RADIUS = 0.0025
+"""
 
 
 def mercator_projection(latitude, longitude):
@@ -63,16 +64,15 @@ def plot_points(coord_list, indices, path):
     plt.show()
 
 
-def euclidean_norm(p1, p2):
-    # calculates distance betweeen point p1 and p2 with Euclidean norm
+def euclidean_norm(node1, node2):
     """
-    calculates distance betweeen point p1 and p2 with Euclidean norm
+    calculates distance between two nodes with Euclidean norm
 
-    :param p1: [x,y] coordinate
-    :param p2: [x,y] coordinate
-    :return: distance
+    :param node1: list of [x,y] coordinate
+    :param node2: list of[x,y] coordinate
+    :return: distance between node1 and node2 as a float
     """
-    return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+    return math.hypot(node2[0] - node1[0], node2[1] - node1[1])
 
 
 def construct_graph_connections(coord_list, radius):
@@ -82,8 +82,7 @@ def construct_graph_connections(coord_list, radius):
     city_connections = []
 
     for start, start_coord in enumerate(coord_list):
-        for end in range(start + 1, len(coord_list)):
-            next_coord = coord_list[end]
+        for end, next_coord in enumerate(coord_list[start + 1:], start + 1):
             distance = euclidean_norm(start_coord, next_coord)
             if distance <= radius:
                 cost.append(math.pow(distance, 9/10))
@@ -137,6 +136,7 @@ def cheapest_path(sparse_graph, start_node):
     """
 
     # directed=false, since the shortest path can be found from node i -> j, and j -> i.
+    # return_predecessor=True, since the content is necessary to compute the cheapest path later on.
     distance, predecessor = dijkstra(csgraph=sparse_graph, directed=False, indices=start_node, return_predecessors=True)
     return distance, predecessor
 
