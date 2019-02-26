@@ -132,16 +132,18 @@ def construct_graph(indices, costs, N):
 def cheapest_path(sparse_graph, start_node):
     """
     creates cheapest path represented by a distance matrix with cost of travel between nodes,
-    and predecessor with cheapest path.
+    and predecessor which  are used to reconstruct cheapest path.
 
     :param sparse_graph: sparse matrix [i, j], representing cost of route between i and j
     :param start_node: starting node, which the path should be computed for
-    :return: distance as a  matrix with cheapest distance from node i, to node j through the graph,
-            predecessor as a list of the shortest paths from point i. Each index  in predecessor[i,j] consists previous
-             node which was passed when traveling from the start node i to node j through the graph.
+    :return: distance as a  matrix with cheapest distance from node i, to node j through the graph.
+            Predecessor as a matrix [i,j] of the shortest paths from point i. Each index  in predecessor[i,j] consists
+             previous node which was passed when traveling from the start node i to node j through the graph.
     """
-
+    # csgraph=sparse_graph, which is a matrix consisting distance between node i and j as described in documentation
     # directed=false, since the shortest path can be found from node i -> j, and j -> i.
+    # indicies=start_node, which the path should be computed for
+    # return_predecessors=True, since we need to reconstruct the shortest path later on. Described in documentation.
     distance, predecessor = dijkstra(csgraph=sparse_graph, directed=False, indices=start_node, return_predecessors=True)
     return distance, predecessor
 
@@ -182,7 +184,6 @@ coordinate_list = read_coordinate_file(FILENAME)
 # connections, travel_cost = construct_graph_connections(coordinate_list, RADIUS)
 # Fast version
 connections, travel_cost = construct_fast_graph_connections(coordinate_list, RADIUS)
-
 constructed_graph = construct_graph(connections, travel_cost, N=len(coordinate_list))
 dist_matrix, predecessor_matrix = cheapest_path(constructed_graph, START_NODE)
 calculated_path = compute_path(predecessor_matrix, START_NODE, END_NODE)
