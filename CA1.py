@@ -85,8 +85,7 @@ def construct_graph_connections(coord_list, radius):
     city_connections = []
 
     for start, start_coord in enumerate(coord_list):
-        for end in range(start + 1, len(coord_list)):
-            next_coord = coord_list[end]
+        for end, next_coord in enumerate(coord_list[start + 1:], start + 1):
             distance = euclidean_norm(start_coord, next_coord)
             if distance <= radius:
                 cost.append(math.pow(distance, 9/10))
