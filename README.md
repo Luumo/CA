@@ -2,7 +2,7 @@
 The problem to solve is to construct a graph of neighboring cities and finding the cheapest path between two given cities, through the neighboring cities.
 
 ## Motivation
-The goal is to get comfortable in using NumPy, SciPy and Matplotlib libraries. 
+The goal is to get comfortable in using NumPy, SciPy and Matplotlib libraries and also learn how to use dijkstra's algorithm.
 
 ## Prerequisites
 Make sure you have installed the following prerequisites:
